@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox prefHeight="468.0" prefWidth="382.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ru.terra.tsaver.gui.MainController">
+    <children>
+        <MenuBar>
+            <menus>
+                <Menu mnemonicParsing="false" text="Средства">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#openSettings" text="Настройки..."/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <HBox layoutX="0.3759765625" layoutY="1.5">
+            <children>
+                <TextField fx:id="tfUrl" layoutX="0.4" layoutY="1.5" prefHeight="25.0" prefWidth="200.0"
+                           HBox.hgrow="ALWAYS">
+                    <padding>
+                        <Insets top="3.0"/>
+                    </padding>
+                </TextField>
+                <Button fx:id="btnStart" layoutX="172" layoutY="1.5" mnemonicParsing="false" onAction="#start"
+                        text="Пуск">
+                    <HBox.margin>
+                        <Insets left="5.0"/>
+                    </HBox.margin>
+                </Button>
+            </children>
+        </HBox>
+        <HBox alignment="CENTER">
+            <children>
+                <Label fx:id="lblLog"/>
+                <CheckBox fx:id="cbAutoUpdate" mnemonicParsing="false" text="auto update"/>
+            </children>
+        </HBox>
+        <ListView fx:id="lvLog" layoutX="3.0" layoutY="27.0" VBox.vgrow="ALWAYS">
+            <padding>
+                <Insets top="3.0"/>
+            </padding>
+        </ListView>
+    </children>
+</VBox>
