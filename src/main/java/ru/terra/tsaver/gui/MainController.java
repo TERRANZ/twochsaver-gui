@@ -68,7 +68,7 @@ public class MainController implements Initializable {
     }
 
     private class DownloadService extends Service<Void> {
-        private Logger logger = LoggerFactory.getLogger(this.getClass());
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
         @Override
         protected Task<Void> createTask() {
@@ -76,18 +76,20 @@ public class MainController implements Initializable {
                 @Override
                 protected Void call() throws Exception {
                     try {
-                        ExecutorService threadPool = Executors.newFixedThreadPool(20);
-                        String url = tfUrl.getText();
-                        Integer thread = Integer.parseInt(url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf(".")));
-                        String resUrl = url.substring(0, url.indexOf("/res"));
-                        String board = resUrl.substring(resUrl.lastIndexOf("/") + 1);
-                        URLConnection conn = new URL("https://2ch.hk/makaba/mobile.fcgi?task=get_thread&board=" + board + "&thread=" + thread + "&num=" + thread).openConnection();
+                        final ExecutorService threadPool = Executors.newFixedThreadPool(20);
+                        final String url = tfUrl.getText();
+                        final Integer thread = Integer.parseInt(url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf(".")));
+                        final String resUrl = url.substring(0, url.indexOf("/res"));
+                        final String board = resUrl.substring(resUrl.lastIndexOf("/") + 1);
+                        final String[] splitUrl = url.split("/");
+                        final String domain = splitUrl[0] + "://" + splitUrl[2];
+                        final URLConnection conn = new URL(domain + "/makaba/mobile.fcgi?task=get_thread&board=" + board + "&thread=" + thread + "&num=" + thread).openConnection();
                         conn.setConnectTimeout(10000);
-                        ObjectMapper mapper = new ObjectMapper();
-                        TwochThread[] readedThread = mapper.readValue(conn.getInputStream(), TwochThread[].class);
+                        final ObjectMapper mapper = new ObjectMapper();
+                        final TwochThread[] readedThread = mapper.readValue(conn.getInputStream(), TwochThread[].class);
                         images = new ArrayList<>();
                         final String finalResUrl = resUrl + "/";
-                        for (TwochThread twochThread : readedThread) {
+                        for (final TwochThread twochThread : readedThread) {
                             twochThread.getFiles().forEach(file -> {
                                 images.add(finalResUrl + file.getPath());
                                 final String finalImageUrl = new String(finalResUrl + file.getPath());
@@ -116,8 +118,8 @@ public class MainController implements Initializable {
     private void downloadImage(String folder, String url) throws IOException {
         new File(folder).mkdirs();
         for (int i = 0; i <= 2; i++) {
-            URL imageUrl = new URL(url);
-            Path path = Paths.get(folder + url.substring(url.lastIndexOf("/")));
+            final URL imageUrl = new URL(url);
+            final Path path = Paths.get(folder + url.substring(url.lastIndexOf("/")));
             if (!path.toFile().exists())
                 Files.copy(imageUrl.openStream(), path, StandardCopyOption.REPLACE_EXISTING);
             break;
@@ -145,26 +147,26 @@ public class MainController implements Initializable {
     }
 
     private void download() {
-        DownloadService downloadService = new DownloadService();
+        final DownloadService downloadService = new DownloadService();
         btnStart.disableProperty().bind(downloadService.runningProperty());
         downloadService.reset();
         downloadService.start();
     }
 
     private void showErrorDialog(Throwable throwable) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+        final Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Exception Dialog");
         alert.setHeaderText("Exception");
         alert.setContentText(throwable.getMessage());
 
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
         throwable.printStackTrace(pw);
         String exceptionText = sw.toString();
 
-        Label label = new Label("The exception stacktrace was:");
+        final Label label = new Label("The exception stacktrace was:");
 
-        TextArea textArea = new TextArea(exceptionText);
+        final TextArea textArea = new TextArea(exceptionText);
         textArea.setEditable(false);
         textArea.setWrapText(true);
 
@@ -173,7 +175,7 @@ public class MainController implements Initializable {
         GridPane.setVgrow(textArea, Priority.ALWAYS);
         GridPane.setHgrow(textArea, Priority.ALWAYS);
 
-        GridPane expContent = new GridPane();
+        final GridPane expContent = new GridPane();
         expContent.setMaxWidth(Double.MAX_VALUE);
         expContent.add(label, 0, 0);
         expContent.add(textArea, 0, 1);
