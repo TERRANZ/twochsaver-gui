@@ -28,6 +28,7 @@ public class TwochThread {
     private Object tags;
     private String trip_type;
     private String unique_posters;
+    private String endless;
 
     public TwochThread() {
     }
@@ -182,5 +183,13 @@ public class TwochThread {
 
     public void setUnique_posters(String unique_posters) {
         this.unique_posters = unique_posters;
+    }
+
+    public String getEndless() {
+        return endless;
+    }
+
+    public void setEndless(String endless) {
+        this.endless = endless;
     }
 }

@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 import ru.terra.tsaver.gui.dto.TwochThread;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -82,21 +82,26 @@ public class MainController implements Initializable {
                         final String resUrl = url.substring(0, url.indexOf("/res"));
                         final String board = resUrl.substring(resUrl.lastIndexOf("/") + 1);
                         final String[] splitUrl = url.split("/");
-                        final String domain = splitUrl[0] + "://" + splitUrl[2];
-                        final URLConnection conn = new URL(domain + "/makaba/mobile.fcgi?task=get_thread&board=" + board + "&thread=" + thread + "&num=" + thread).openConnection();
-                        conn.setConnectTimeout(10000);
-                        final ObjectMapper mapper = new ObjectMapper();
-                        final TwochThread[] readedThread = mapper.readValue(conn.getInputStream(), TwochThread[].class);
+                        final String domain = splitUrl[0] + "//" + splitUrl[2];
+                        final String fullUrlBuild = domain + "/makaba/mobile.fcgi?task=get_thread&board=" + board + "&thread=" + thread + "&num=" + thread;
+
+                        final URL uri = new URL(fullUrlBuild);
+                        HttpURLConnection con = (HttpURLConnection) uri.openConnection();
+                        con.setRequestMethod("GET");
+                        con.setRequestProperty("Content-Type", "application/json");
+                        con.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36");
+
+                        final TwochThread[] readedThread = new ObjectMapper().readValue(con.getInputStream(), TwochThread[].class);
                         images = new ArrayList<>();
-                        final String finalResUrl = resUrl + "/";
                         for (final TwochThread twochThread : readedThread) {
                             twochThread.getFiles().forEach(file -> {
-                                images.add(finalResUrl + file.getPath());
-                                final String finalImageUrl = new String(finalResUrl + file.getPath());
+                                images.add(domain + file.getPath());
+                                final String finalImageUrl = new String(domain + file.getPath());
                                 threadPool.submit(() -> {
                                     try {
                                         downloadImage(board + thread, finalImageUrl);
                                     } catch (Exception e) {
+                                        e.printStackTrace();
                                         showErrorDialog(e);
                                     }
                                 });
@@ -107,6 +112,7 @@ public class MainController implements Initializable {
                         threadPool.shutdown();
 
                     } catch (Exception e) {
+                        e.printStackTrace();
                         showErrorDialog(e);
                     }
                     return null;
@@ -119,9 +125,13 @@ public class MainController implements Initializable {
         new File(folder).mkdirs();
         for (int i = 0; i <= 2; i++) {
             final URL imageUrl = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) imageUrl.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36");
             final Path path = Paths.get(folder + url.substring(url.lastIndexOf("/")));
             if (!path.toFile().exists())
-                Files.copy(imageUrl.openStream(), path, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(con.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
             break;
         }
         Platform.runLater(() -> {

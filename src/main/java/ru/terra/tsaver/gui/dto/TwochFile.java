@@ -22,6 +22,9 @@ public class TwochFile {
     private String type;
     private String nsfw;
     private String duration;
+    private String displayname;
+    private String fullname;
+    private String duration_secs;
 
     public TwochFile() {
     }
@@ -144,5 +147,29 @@ public class TwochFile {
 
     public void setDuration(String duration) {
         this.duration = duration;
+    }
+
+    public String getDisplayname() {
+        return displayname;
+    }
+
+    public void setDisplayname(String displayname) {
+        this.displayname = displayname;
+    }
+
+    public String getFullname() {
+        return fullname;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public String getDuration_secs() {
+        return duration_secs;
+    }
+
+    public void setDuration_secs(String duration_secs) {
+        this.duration_secs = duration_secs;
     }
 }
